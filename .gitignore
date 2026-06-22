@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.claude/
+
+# Converter output
+converted.jsonl
+*.out.jsonl
+
+# SAFETY: never commit real data. All JSONL is ignored by default; the two
+# synthetic sample files are force-added in the repo (git add -f). Drop your
+# real breach exports anywhere in here and they will NOT be tracked.
+*.jsonl
+*.csv
+*.tsv
+*.xlsx
+*.xls

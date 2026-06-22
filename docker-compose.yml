@@ -1,0 +1,44 @@
+services:
+  solr:
+    image: solr:9
+    container_name: ledger-solr
+    # _default configset: schemaless field-guessing + a _text_ catch-all
+    # copyField, so search works on the first ingest with no schema work.
+    command:
+      - solr-precreate
+      - BigData
+    ports:
+      # localhost ONLY. The Solr admin UI has no auth and must never face
+      # the network. The FastAPI proxy is the only intended public surface.
+      - "127.0.0.1:8983:8983"
+    volumes:
+      - solr_data:/var/solr
+    healthcheck:
+      # wget, not curl: the Solr image's own scripts (wait-for-solr.sh) use
+      # wget, so it's the HTTP client guaranteed to be present. -O /dev/null
+      # makes exit status follow the HTTP code, so a 503 ping fails the check.
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8983/solr/BigData/admin/ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  app:
+    build: ./app
+    container_name: ledger-app
+    environment:
+      SOLR_URL: http://solr:8983/solr
+      SOLR_CORE: BigData
+      MAX_ROWS: "100"
+    ports:
+      # Also localhost-only by default. This is the seam where you'd add
+      # auth / rate-limiting before exposing it beyond this machine.
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      solr:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  solr_data:

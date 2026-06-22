@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ledger — Breach Check</title>
+<style>
+  :root {
+    --bg: #eef1f4; --panel: #f8fafb; --ink: #1c2430; --ink-soft: #5a6573;
+    --ink-faint: #8a94a1; --rule: #d3d9e0; --rule-strong: #b9c2cd;
+    --accent: #1d4ed8; --accent-soft: #e5ecfb;
+    --bad: #d23f3f; --bad-soft: #fbe7e7; --ok: #1f9d55; --ok-soft: #e4f4ea;
+    --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", "Consolas", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  header.masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; border-bottom: 2px solid var(--rule-strong); padding-bottom: 12px; flex-wrap: wrap; }
+  .brand { font-family: var(--mono); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; }
+  .brand .accent { color: var(--accent); }
+  nav { font-family: var(--mono); font-size: 12px; }
+  nav a { color: var(--ink-faint); text-decoration: none; padding: 4px 8px; border-radius: 3px; }
+  nav a.active { color: var(--accent); background: var(--accent-soft); }
+  nav a:hover { color: var(--ink); }
+
+  .lede { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); margin: 18px 0 6px; }
+  .lede b { color: var(--ink); }
+
+  form.check { display: grid; gap: 10px; margin: 14px 0; }
+  .inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); }
+  .field input { border: 1px solid var(--rule-strong); border-radius: 4px; background: var(--panel); padding: 11px 12px; font-family: var(--mono); font-size: 14px; color: var(--ink); }
+  .field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  button { font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent); color: #fff; padding: 12px 16px; justify-self: start; }
+  button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .verdict { display: none; margin: 22px 0 8px; border-radius: 4px; padding: 16px 18px; font-family: var(--mono); border: 1px solid var(--rule-strong); }
+  .verdict.breached { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+  .verdict.clear { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+  .verdict .big { font-size: 16px; font-weight: 600; }
+  .verdict .sub { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+
+  .results { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--rule); border-left: 3px solid var(--bad); border-radius: 4px; overflow: hidden; }
+  .card .card-hd { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); padding: 8px 14px; border-bottom: 1px solid var(--rule); background: rgba(0,0,0,0.012); }
+  .row { display: grid; grid-template-columns: 180px 1fr; gap: 14px; padding: 7px 14px; border-top: 1px solid var(--rule); }
+  .row:first-child { border-top: 0; }
+  .row .k { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; word-break: break-word; }
+  .row .v { font-family: var(--mono); font-size: 13.5px; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+
+  .state { text-align: center; padding: 40px 20px; color: var(--ink-soft); font-family: var(--mono); font-size: 13px; border: 1px dashed var(--rule-strong); border-radius: 4px; background: var(--panel); margin-top: 14px; }
+  .state.error { border-color: var(--bad); color: var(--bad); }
+  .hidden { display: none !important; }
+
+  .warn { margin-top: 28px; border-top: 1px solid var(--rule); padding-top: 12px; font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
+
+  @media (max-width: 560px) { .inputs { grid-template-columns: 1fr; } .row { grid-template-columns: 1fr; gap: 2px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="masthead">
+      <div class="brand">LEDGER<span class="accent">/</span>BREACH-CHECK</div>
+      <nav>
+        <a href="/">Search</a>
+        <a href="/check.html" class="active">Breach check</a>
+      </nav>
+    </header>
+
+    <p class="lede">Enter an identifier to check it against the indexed breach records. Identifiers are matched by <b>SHA-256</b> — the value you type is hashed locally-side by the proxy and compared to stored hashes; the index holds no plaintext identifiers.</p>
+
+    <form class="check" id="checkForm" autocomplete="off">
+      <div class="inputs">
+        <div class="field"><label for="email">Email</label><input id="email" type="text" placeholder="name@example.com" /></div>
+        <div class="field"><label for="username">Username</label><input id="username" type="text" placeholder="handle" /></div>
+        <div class="field"><label for="phone">Phone</label><input id="phone" type="text" placeholder="+1 555 0100" /></div>
+      </div>
+      <button type="submit">Check</button>
+    </form>
+
+    <div class="verdict" id="verdict" role="status" aria-live="polite">
+      <div class="big" id="verdictBig"></div>
+      <div class="sub" id="verdictSub"></div>
+    </div>
+
+    <div class="results" id="results"></div>
+    <div class="state hidden" id="stateBox"></div>
+
+    <p class="warn">Offline research tool — single analyst, localhost only. It returns full record contents; do not expose this endpoint to a network.</p>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    form: $("checkForm"), email: $("email"), username: $("username"), phone: $("phone"),
+    verdict: $("verdict"), big: $("verdictBig"), sub: $("verdictSub"),
+    results: $("results"), state: $("stateBox"),
+  };
+
+  function escapeHtml(s) {
+    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+  }
+  function valueToText(v) {
+    if (Array.isArray(v)) return v.join(", ");
+    if (v === null || v === undefined) return "";
+    return String(v);
+  }
+  // Hide the hash lookup fields and schemaless *_str companions from display.
+  function isHidden(key) {
+    return key === "id" || key.startsWith("_") || key.endsWith("_h") || key.endsWith("_str");
+  }
+
+  function setVerdict(kind, big, sub) {
+    els.verdict.className = "verdict " + kind;
+    els.verdict.style.display = "block";
+    els.big.textContent = big;
+    els.sub.textContent = sub || "";
+  }
+  function showState(msg, isError) {
+    els.state.className = "state" + (isError ? " error" : "");
+    els.state.textContent = msg;
+  }
+  function clearOutput() {
+    els.results.innerHTML = "";
+    els.state.className = "state hidden";
+    els.state.textContent = "";
+    els.verdict.style.display = "none";
+  }
+
+  function renderDocs(docs) {
+    const frag = document.createDocumentFragment();
+    for (const doc of docs) {
+      const card = document.createElement("div");
+      card.className = "card";
+      const hd = document.createElement("div");
+      hd.className = "card-hd";
+      hd.textContent = "record " + valueToText(doc.id);
+      card.appendChild(hd);
+      for (const key of Object.keys(doc)) {
+        if (isHidden(key)) continue;
+        const row = document.createElement("div");
+        row.className = "row";
+        const k = document.createElement("div"); k.className = "k"; k.textContent = key;
+        const v = document.createElement("div"); v.className = "v"; v.textContent = valueToText(doc[key]);
+        row.appendChild(k); row.appendChild(v); card.appendChild(row);
+      }
+      frag.appendChild(card);
+    }
+    els.results.appendChild(frag);
+  }
+
+  async function runCheck() {
+    clearOutput();
+    const p = new URLSearchParams();
+    if (els.email.value.trim()) p.set("email", els.email.value.trim());
+    if (els.username.value.trim()) p.set("username", els.username.value.trim());
+    if (els.phone.value.trim()) p.set("phone", els.phone.value.trim());
+    if (![...p].length) { showState("Enter an email, username, or phone to check.", false); return; }
+
+    let resp, data;
+    try { resp = await fetch("/api/check?" + p.toString()); }
+    catch (e) { showState("Proxy unreachable — could not reach the check API.", true); return; }
+    try { data = await resp.json(); } catch (e) { data = {}; }
+
+    if (!resp.ok) {
+      showState((data && data.detail) ? data.detail : `Request failed (${resp.status})`, true);
+      return;
+    }
+
+    if (data.found) {
+      const n = data.count;
+      setVerdict("breached", `Breached — found in ${n} record${n === 1 ? "" : "s"}`,
+        `Matched on: ${(data.checked || []).join(", ") || "—"}`);
+      renderDocs(data.docs || []);
+    } else {
+      setVerdict("clear", "No match found",
+        `Not present in the indexed breach records for: ${(data.checked || []).join(", ") || "—"}`);
+    }
+  }
+
+  els.form.addEventListener("submit", (e) => { e.preventDefault(); runCheck(); });
+})();
+</script>
+</body>
+</html>

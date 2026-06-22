@@ -1,0 +1,10 @@
+{"email": "Alice@Example.com", "password": "hunter2", "source": "AcmeForum-2019", "breach_date": "2019-03-01", "data_classes": ["email", "password"]}
+{"email": "alice@example.com", "username": "al1ce", "phone": "+1 (555) 0143", "password": "sunshine2021", "source": "ShopDB-2021", "breach_date": "2021-07-15", "data_classes": ["email", "username", "password", "phone"]}
+{"username": "Bob_99", "password": "qwerty", "source": "GameNet-2020", "breach_date": "2020-11-02", "data_classes": ["username", "password"]}
+{"email": "carol@example.net", "phone": "555-0199", "password": "letmein", "source": "AcmeForum-2019", "breach_date": "2019-03-01", "data_classes": ["email", "phone", "password"]}
+{"email": "dave@example.org", "username": "dave", "password": "p@ssw0rd", "source": "MailLeak-2022", "breach_date": "2022-01-20", "data_classes": ["email", "username", "password"]}
+{"email": "erin@example.com", "password": "123456", "source": "NewsList-2018", "breach_date": "2018-05-09", "data_classes": ["email", "password"]}
+{"email": "erin@example.com", "username": "erin_k", "phone": "+1 555 0177", "password": "football", "source": "ShopDB-2021", "breach_date": "2021-07-15", "data_classes": ["email", "username", "phone", "password"]}
+{"email": "frank@example.io", "username": "frankie", "password": "correcthorse", "source": "DevForum-2023", "breach_date": "2023-02-11", "data_classes": ["email", "username", "password"]}
+{"email": "grace@example.com", "password": "monkey", "source": "AcmeForum-2019", "breach_date": "2019-03-01", "data_classes": ["email", "password"]}
+{"email": "heidi@example.net", "username": "heidi", "phone": "555-0123", "password": "iloveyou", "source": "CloudSync-2022", "breach_date": "2022-09-30", "data_classes": ["email", "username", "phone", "password"]}
