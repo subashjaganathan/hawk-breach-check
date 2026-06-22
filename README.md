@@ -1,6 +1,6 @@
-# Ledger — Self-Hosted Full-Text Search
+# Ledger - Self-Hosted Full-Text Search
 
-A small, self-hosted full-text search engine over **your own records** — logs,
+A small, self-hosted full-text search engine over **your own records** - logs,
 analyst notes, threat-feed documents, synthetic datasets. It is **not** a public
 search service and is not designed to be one.
 
@@ -15,7 +15,7 @@ app/
 convert.py              turns Excel/CSV/txt/JSON into JSONL (runs on the host)
 ingest.py               stdlib-only JSONL loader (+ identifier hashing), runs on the host
 sample.jsonl            15 synthetic DFIR records to get started
-sample_breach.jsonl     5 synthetic breach records for the breach-check demo
+sample_breach.jsonl     10 synthetic breach records for the breach-check demo
 README.md
 ```
 
@@ -53,7 +53,7 @@ then open:
 http://localhost:3000
 ```
 
-On a clean start the index is empty — the UI will say *"No records match."*
+On a clean start the index is empty - the UI will say *"No records match."*
 Load the sample data (below) and search again.
 
 ## Ingesting data
@@ -73,12 +73,12 @@ python3 ingest.py events.jsonl --id-field event_id     # use an existing field a
 python3 ingest.py data.jsonl --solr http://localhost:8983/solr
 ```
 
-- **Input format:** JSONL — one JSON object per line. Each object is one
+- **Input format:** JSONL - one JSON object per line. Each object is one
   record/document; its keys become Solr fields.
 - **IDs:** every doc needs a unique `id`. If `--id-field` is given, that field's
   value is copied to `id`; otherwise, if no `id` is present, one is generated
   (UUID). Re-ingesting a doc with the same `id` overwrites it.
-- **Bad lines** are skipped and reported — a malformed line never aborts the run.
+- **Bad lines** are skipped and reported - a malformed line never aborts the run.
 - Data is committed in batches (default 1000) so it's searchable immediately.
 - Reading from **stdin**: pass `-` as the file to ingest piped JSONL (see below).
 
@@ -91,7 +91,7 @@ first. Point it at a **file or a whole directory** (walked recursively):
 |--------|----------|
 | `.csv` | Delimiter + header auto-detected; header row → field names. |
 | `.tsv` / `.tab` | Tab-separated; header row → field names. |
-| `.xlsx` | Each sheet's rows → records; first row = headers. Needs `pip install openpyxl`. (`.xls` not supported — re-save as `.xlsx`/CSV.) |
+| `.xlsx` | Each sheet's rows → records; first row = headers. Needs `pip install openpyxl`. (`.xls` not supported - re-save as `.xlsx`/CSV.) |
 | `.txt` / combolists | One line per record. Delimiter auto-detected; `email:password` assumed for 2 columns, else pass `--columns`. |
 | `.json` | A JSON array of objects (or a single object). |
 | `.jsonl` / `.ndjson` | Passed through (and validated). |
@@ -111,7 +111,7 @@ python convert.py combo.txt --delimiter : --columns email,password,ip | python i
 
 > **Windows / PowerShell tip:** the native pipe is fine (`ingest.py` strips the
 > BOM PowerShell injects), but the most robust path is to write a file first,
-> then ingest it — handy for large datasets anyway:
+> then ingest it - handy for large datasets anyway:
 > ```powershell
 > python convert.py "C:\leaks" --out converted.jsonl
 > python ingest.py converted.jsonl --email-field email --username-field username --phone-field phone
@@ -139,10 +139,10 @@ record as a card of `field → value` rows.
 The search box maps directly to Solr's edismax query parser with `_text_` as the
 default field:
 
-- `cobaltstrike` — any record mentioning it
-- `severity:high` — field-scoped
-- `c2 AND powershell` — boolean
-- blank box — lists all records (`*:*`)
+- `cobaltstrike` - any record mentioning it
+- `severity:high` - field-scoped
+- `c2 AND powershell` - boolean
+- blank box - lists all records (`*:*`)
 
 Matched terms are highlighted. The readout shows total hits, round-trip latency,
 the current page, and a Solr health dot.
@@ -161,10 +161,10 @@ Configured via env (set in `docker-compose.yml`): `SOLR_URL`, `SOLR_CORE`,
 
 ## Breach check (offline, single-analyst only)
 
-A second page — **`/check.html`** ("Breach check" in the nav) — lets you enter an
+A second page - **`/check.html`** ("Breach check" in the nav) - lets you enter an
 email, username, or phone and see whether it appears in indexed breach records.
 
-> ⚠️ **This feature returns full record contents (passwords, PII) on a match.**
+> **This feature returns full record contents (passwords, PII) on a match.**
 > That is only acceptable because this stack is bound to **localhost for a single
 > analyst** doing research on their own dataset. **Do not expose `/api/check` (or
 > the stack) to a network, other users, or the internet.** A reachable endpoint
@@ -187,7 +187,7 @@ email, username, or phone and see whether it appears in indexed breach records.
   retain it). Non-identifier fields (password, source, date, …) are kept as-is so
   the full record is still useful.
 - `/api/check` applies the **same** normalization + hash to what you type and
-  exact-matches the hash, so the index never needs — and never holds — the
+  exact-matches the hash, so the index never needs - and never holds - the
   plaintext identifier. Matching is case-insensitive for email/username and
   format-insensitive for phone (it compares digits only, so country-code
   differences can cause misses).
@@ -206,19 +206,19 @@ control. Keep it that way:
   must never face the network. The compose file binds it to `127.0.0.1:8983`;
   do not change that to `0.0.0.0` or publish it through a reverse proxy without
   putting auth in front of it first. Anyone who can reach Solr directly can read,
-  modify, or delete your entire index — and in some configurations run code.
+  modify, or delete your entire index - and in some configurations run code.
 - **The proxy is the only intended public surface.** `app/main.py` is the single
   seam for adding **authentication, rate-limiting, and query logging**. It also
   exposes nothing but the three `/api/*` routes plus the static UI, and disables
   Solr's raw admin/update endpoints to the browser. The proxy port is *also*
-  bound to localhost by default — if you expose it (e.g. on a LAN or behind a
+  bound to localhost by default - if you expose it (e.g. on a LAN or behind a
   tunnel), add auth at the proxy first.
 - **Move off schemaless once your fields are settled.** The `_default` configset
   is convenient for getting started, but field-guessing is brittle (a single
   oddly-typed value can lock a field to the wrong type) and the index is larger
   than it needs to be. Once you know your fields, define an **explicit schema**:
-  pick `string` (exact match / faceting / sorting — e.g. `id`, `severity`,
-  `indicator_type`, IPs) vs. `text_general` (tokenized full-text — e.g. `body`,
+  pick `string` (exact match / faceting / sorting - e.g. `id`, `severity`,
+  `indicator_type`, IPs) vs. `text_general` (tokenized full-text - e.g. `body`,
   `title`, `event`), set `indexed`/`stored` deliberately, and only copy the
   fields you actually search into `_text_`. The payoff is better relevance and a
   smaller, faster index.
@@ -228,5 +228,5 @@ control. Keep it that way:
 - Solr data persists in the named Docker volume `solr_data`. `docker compose
   down` keeps it; `docker compose down -v` wipes the index.
 - To reset the index without removing the volume:
-  `python3 ingest.py` won't clear it — delete via
+  `python3 ingest.py` won't clear it - delete via
   `curl 'http://localhost:8983/solr/BigData/update?commit=true' -H 'Content-Type: application/json' -d '{"delete":{"query":"*:*"}}'`.
