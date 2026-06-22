@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Load JSONL records into Solr. Stdlib only (urllib + json) — runs on the host,
+"""Load JSONL records into Solr. Stdlib only (urllib + json) - runs on the host,
 no pip install required.
 
 Reads one JSON object per line, batches them, and POSTs arrays to
@@ -123,7 +123,7 @@ def main():
 
     if args.file == "-":
         # Read JSONL piped from convert.py (or any producer) on stdin.
-        # utf-8-sig drops a leading BOM — PowerShell's native pipe prepends one,
+        # utf-8-sig drops a leading BOM - PowerShell's native pipe prepends one,
         # which would otherwise corrupt the first record.
         try:
             sys.stdin.reconfigure(encoding="utf-8-sig")
@@ -132,7 +132,7 @@ def main():
         fh = sys.stdin
     else:
         try:
-            # utf-8-sig transparently strips a leading BOM if present — common on
+            # utf-8-sig transparently strips a leading BOM if present - common on
             # JSONL written by Windows editors / PowerShell, otherwise the first
             # record would be mis-flagged as malformed.
             fh = open(args.file, "r", encoding="utf-8-sig")

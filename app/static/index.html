@@ -3,254 +3,116 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ledger — Full-Text Search</title>
+<title>HAWK / Search</title>
 <style>
   :root {
-    --bg: #eef1f4;
-    --panel: #f8fafb;
-    --ink: #1c2430;
-    --ink-soft: #5a6573;
-    --ink-faint: #8a94a1;
-    --rule: #d3d9e0;
-    --rule-strong: #b9c2cd;
-    --accent: #1d4ed8;
-    --accent-soft: #e5ecfb;
-    --mark-bg: #fde68a;
-    --mark-ink: #3a2e00;
+    --bg: #eef1f5;
+    --panel: #ffffff;
+    --panel-2: #f7f9fb;
+    --ink: #15202b;
+    --ink-soft: #56626f;
+    --ink-faint: #8c97a3;
+    --rule: #dde3ea;
+    --rule-strong: #c3ccd5;
+    --accent: #1f4fd0;
+    --accent-soft: #e6ecfb;
+    --hawk: #c25214;
+    --hawk-soft: #fbeadf;
+    --mark-bg: #ffe2ad;
+    --mark-ink: #4a3000;
     --ok: #1f9d55;
     --bad: #d23f3f;
-    --warn: #c98a00;
     --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", "Consolas", monospace;
     --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
-
   * { box-sizing: border-box; }
-
   html, body { margin: 0; }
-
   body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 15px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #f5f8fb 0%, var(--bg) 60%);
+    color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
   }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 26px 20px 90px; }
 
-  .wrap {
-    max-width: 920px;
-    margin: 0 auto;
-    padding: 28px 20px 80px;
-  }
+  /* masthead */
+  header.masthead { display: flex; align-items: center; gap: 14px; border-bottom: 2px solid var(--ink); padding-bottom: 14px; }
+  .logo { flex: none; width: 40px; height: 40px; }
+  .brand-block { display: flex; flex-direction: column; gap: 1px; }
+  .brand { font-family: var(--mono); font-weight: 700; font-size: 22px; letter-spacing: 0.16em; line-height: 1; }
+  .brand .dot { color: var(--hawk); }
+  .brand-sub { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); }
+  nav.nav { margin-left: auto; font-family: var(--mono); font-size: 12px; display: flex; gap: 4px; }
+  nav.nav a { color: var(--ink-soft); text-decoration: none; padding: 6px 11px; border-radius: 3px; letter-spacing: 0.03em; }
+  nav.nav a.active { color: #fff; background: var(--ink); }
+  nav.nav a:hover:not(.active) { color: var(--ink); background: var(--panel); }
 
-  /* ---- masthead ---- */
-  header.masthead {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-    border-bottom: 2px solid var(--rule-strong);
-    padding-bottom: 12px;
-    flex-wrap: wrap;
-  }
-  .brand {
-    font-family: var(--mono);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 14px;
-  }
-  .brand .accent { color: var(--accent); }
-  .tagline {
-    color: var(--ink-faint);
-    font-size: 12px;
-    font-family: var(--mono);
-  }
-  nav.nav { font-family: var(--mono); font-size: 12px; }
-  nav.nav a { color: var(--ink-faint); text-decoration: none; padding: 4px 8px; border-radius: 3px; }
-  nav.nav a.active { color: var(--accent); background: var(--accent-soft); }
-  nav.nav a:hover { color: var(--ink); }
-
-  /* ---- search row ---- */
-  form.search {
-    display: flex;
-    gap: 10px;
-    margin: 22px 0 14px;
-  }
-  .field {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    background: var(--panel);
-    border: 1px solid var(--rule-strong);
-    border-radius: 4px;
-  }
-  .field:focus-within {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-  }
-  .field .glyph {
-    padding: 0 12px;
-    color: var(--ink-faint);
-    font-family: var(--mono);
-    user-select: none;
-  }
-  #q {
-    flex: 1;
-    border: 0;
-    background: transparent;
-    padding: 13px 14px 13px 0;
-    font-family: var(--mono);
-    font-size: 15px;
-    color: var(--ink);
-    outline: none;
-  }
+  /* search */
+  form.search { display: flex; gap: 10px; margin: 24px 0 14px; }
+  .field { flex: 1; display: flex; align-items: center; background: var(--panel); border: 1px solid var(--rule-strong); border-radius: 6px; box-shadow: 0 1px 2px rgba(20,32,43,0.04); }
+  .field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .field .glyph { padding: 0 6px 0 14px; color: var(--hawk); font-family: var(--mono); font-weight: 700; user-select: none; }
+  #q { flex: 1; border: 0; background: transparent; padding: 14px 14px 14px 6px; font-family: var(--mono); font-size: 15px; color: var(--ink); outline: none; }
   #q::placeholder { color: var(--ink-faint); }
+  button { font-family: var(--mono); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; border-radius: 6px; border: 1px solid var(--rule-strong); background: var(--panel); color: var(--ink); padding: 0 18px; }
+  button.primary { background: var(--ink); border-color: var(--ink); color: #fff; }
+  button.primary:hover { background: #0c1620; }
+  button:focus-visible, a:focus-visible, #q:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  button {
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 4px;
-    border: 1px solid var(--rule-strong);
-    background: var(--panel);
-    color: var(--ink);
-    padding: 0 16px;
-  }
-  button.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-  button:focus-visible,
-  a:focus-visible,
-  #q:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  button:disabled { opacity: 0.45; cursor: not-allowed; }
-
-  /* ---- instrument readout ---- */
-  .readout {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    flex-wrap: wrap;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--ink-soft);
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    padding: 8px 2px;
-  }
+  /* readout */
+  .readout { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 9px 2px; }
   .readout .metric { display: inline-flex; gap: 6px; align-items: baseline; }
-  .readout .metric b {
-    color: var(--ink);
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-  .readout .label { color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; }
+  .readout .metric b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .readout .label { color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.07em; }
   .health { display: inline-flex; align-items: center; gap: 7px; margin-left: auto; }
-  .dot {
-    width: 9px; height: 9px; border-radius: 50%;
-    background: var(--ink-faint);
-    box-shadow: 0 0 0 0 transparent;
-    transition: background 0.3s ease;
-  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ink-faint); transition: background 0.3s ease, box-shadow 0.3s ease; }
   .dot.ok { background: var(--ok); box-shadow: 0 0 0 3px rgba(31,157,85,0.18); }
   .dot.bad { background: var(--bad); box-shadow: 0 0 0 3px rgba(210,63,63,0.18); }
 
-  /* ---- results ---- */
+  /* results */
   .results { margin-top: 22px; display: flex; flex-direction: column; gap: 14px; }
-
-  .card {
-    background: var(--panel);
-    border: 1px solid var(--rule);
-    border-left: 3px solid var(--accent);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .card .card-id {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--ink-faint);
-    padding: 8px 14px;
-    border-bottom: 1px solid var(--rule);
-    background: rgba(0,0,0,0.012);
-    word-break: break-all;
-  }
-  .row {
-    display: grid;
-    grid-template-columns: 180px 1fr;
-    gap: 14px;
-    padding: 7px 14px;
-    border-top: 1px solid var(--rule);
-  }
+  .card { background: var(--panel); border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 6px; overflow: hidden; box-shadow: 0 1px 2px rgba(20,32,43,0.04); }
+  .card .card-id { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); padding: 9px 15px; border-bottom: 1px solid var(--rule); background: var(--panel-2); word-break: break-all; }
+  .row { display: grid; grid-template-columns: 180px 1fr; gap: 14px; padding: 8px 15px; border-top: 1px solid var(--rule); }
   .row:first-child { border-top: 0; }
-  .row .k {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--ink-soft);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    word-break: break-word;
-  }
-  .row .v {
-    font-family: var(--mono);
-    font-size: 13.5px;
-    color: var(--ink);
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .row .v mark {
-    background: var(--mark-bg);
-    color: var(--mark-ink);
-    border-radius: 2px;
-    padding: 0 2px;
-  }
+  .row .k { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; word-break: break-word; }
+  .row .v { font-family: var(--mono); font-size: 13.5px; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+  .row .v mark { background: var(--mark-bg); color: var(--mark-ink); border-radius: 2px; padding: 0 2px; }
 
-  /* ---- pagination ---- */
-  .pager {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 26px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--ink-soft);
-  }
+  /* pager */
+  .pager { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 26px; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
   .pager .range b { color: var(--ink); font-variant-numeric: tabular-nums; }
 
-  /* ---- states ---- */
-  .state {
-    text-align: center;
-    padding: 54px 20px;
-    color: var(--ink-soft);
-    font-family: var(--mono);
-    font-size: 13px;
-    border: 1px dashed var(--rule-strong);
-    border-radius: 4px;
-    background: var(--panel);
-  }
+  /* states */
+  .state { text-align: center; padding: 54px 20px; color: var(--ink-soft); font-family: var(--mono); font-size: 13px; border: 1px dashed var(--rule-strong); border-radius: 6px; background: var(--panel); }
   .state.error { border-color: var(--bad); color: var(--bad); }
   .state .big { font-size: 15px; color: var(--ink); margin-bottom: 6px; }
   .hidden { display: none !important; }
+
+  footer.foot { margin-top: 40px; padding-top: 12px; border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 11px; color: var(--ink-faint); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 
   @media (max-width: 560px) {
     .row { grid-template-columns: 1fr; gap: 2px; }
     form.search { flex-wrap: wrap; }
     .field { flex-basis: 100%; }
+    .brand { font-size: 19px; }
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; }
-  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
   <div class="wrap">
     <header class="masthead">
-      <div class="brand">LEDGER<span class="accent">/</span>SEARCH</div>
+      <svg class="logo" viewBox="0 0 40 40" aria-hidden="true" fill="none">
+        <path d="M5 15 L20 8 L35 15" stroke="#c25214" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 24 C13 16.5 27 16.5 35 24 C27 31.5 13 31.5 5 24 Z" stroke="#15202b" stroke-width="2"/>
+        <circle cx="20" cy="24" r="4.4" fill="#c25214"/>
+      </svg>
+      <div class="brand-block">
+        <div class="brand">HAWK<span class="dot">.</span></div>
+        <div class="brand-sub">self-hosted index</div>
+      </div>
       <nav class="nav">
         <a href="/" class="active">Search</a>
         <a href="/check.html">Breach check</a>
@@ -260,37 +122,37 @@
     <form class="search" id="searchForm" autocomplete="off">
       <label class="field" for="q">
         <span class="glyph" aria-hidden="true">&gt;</span>
-        <input id="q" name="q" type="text" placeholder="query  ·  blank = all records  ·  e.g.  field:value AND term"
+        <input id="q" name="q" type="text" placeholder="query  ·  blank lists everything  ·  e.g.  field:value AND term"
                aria-label="Search query" />
       </label>
       <button type="submit" class="primary">Search</button>
     </form>
 
     <div class="readout" role="status" aria-live="polite">
-      <span class="metric"><span class="label">hits</span> <b id="m-total">—</b></span>
-      <span class="metric"><span class="label">latency</span> <b id="m-latency">—</b></span>
-      <span class="metric"><span class="label">page</span> <b id="m-page">—</b></span>
-      <span class="health">
-        <span class="label">solr</span>
-        <span class="dot" id="healthDot" title="checking…"></span>
-      </span>
+      <span class="metric"><span class="label">hits</span> <b id="m-total">-</b></span>
+      <span class="metric"><span class="label">latency</span> <b id="m-latency">-</b></span>
+      <span class="metric"><span class="label">page</span> <b id="m-page">-</b></span>
+      <span class="health"><span class="label">solr</span><span class="dot" id="healthDot" title="checking"></span></span>
     </div>
 
     <div class="results" id="results"></div>
-
     <div class="state hidden" id="stateBox"></div>
 
     <div class="pager hidden" id="pager">
-      <button id="prevBtn" type="button">‹ Prev</button>
+      <button id="prevBtn" type="button">&#8249; Prev</button>
       <span class="range" id="rangeText"></span>
-      <button id="nextBtn" type="button">Next ›</button>
+      <button id="nextBtn" type="button">Next &#8250;</button>
     </div>
+
+    <footer class="foot">
+      <span>HAWK &middot; self-hosted full-text search</span>
+      <span>own records only &middot; localhost</span>
+    </footer>
   </div>
 
 <script>
 (() => {
   "use strict";
-
   const ROWS = 10;
   const $ = (id) => document.getElementById(id);
   const els = {
@@ -299,79 +161,47 @@
     dot: $("healthDot"), results: $("results"), state: $("stateBox"),
     pager: $("pager"), prev: $("prevBtn"), next: $("nextBtn"), range: $("rangeText"),
   };
+  let start = 0, lastTotal = 0;
 
-  let start = 0;
-  let lastTotal = 0;
-
-  // ---- safety: escape everything, then re-tag only Solr's <em> as <mark> ----
   function escapeHtml(s) {
-    return String(s)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#39;");
+    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
   }
-  // Input is a Solr highlight snippet: arbitrary record content wrapped with
-  // <em>…</em> around matches. Escape the whole thing (so any HTML in the data
-  // is inert), then promote the now-escaped em markers to <mark>.
+  // Solr highlight snippets arrive wrapped in <em>; escape the whole thing so any
+  // HTML in the data is inert, then promote the escaped markers to <mark>.
   function highlightHtml(snippet) {
-    return escapeHtml(snippet)
-      .replaceAll("&lt;em&gt;", "<mark>")
-      .replaceAll("&lt;/em&gt;", "</mark>");
+    return escapeHtml(snippet).replaceAll("&lt;em&gt;","<mark>").replaceAll("&lt;/em&gt;","</mark>");
   }
-
   function valueToText(v) {
     if (Array.isArray(v)) return v.join(", ");
     if (v === null || v === undefined) return "";
     return String(v);
   }
-
   function showState(html, isError) {
-    els.results.innerHTML = "";
-    els.pager.classList.add("hidden");
-    els.state.className = "state" + (isError ? " error" : "");
-    els.state.innerHTML = html;
+    els.results.innerHTML = ""; els.pager.classList.add("hidden");
+    els.state.className = "state" + (isError ? " error" : ""); els.state.innerHTML = html;
   }
   function clearState() { els.state.className = "state hidden"; els.state.innerHTML = ""; }
 
   function renderDocs(docs, highlighting) {
-    els.results.innerHTML = "";
-    clearState();
+    els.results.innerHTML = ""; clearState();
     const frag = document.createDocumentFragment();
-
     for (const doc of docs) {
       const id = doc.id;
       const hl = (id && highlighting && highlighting[id]) || {};
-      const card = document.createElement("div");
-      card.className = "card";
-
-      const idBar = document.createElement("div");
-      idBar.className = "card-id";
-      idBar.textContent = "id · " + valueToText(id);
-      card.appendChild(idBar);
-
+      const card = document.createElement("div"); card.className = "card";
+      const idBar = document.createElement("div"); idBar.className = "card-id";
+      idBar.textContent = "id · " + valueToText(id); card.appendChild(idBar);
       for (const key of Object.keys(doc)) {
         if (key === "id" || key.startsWith("_")) continue;
-        const row = document.createElement("div");
-        row.className = "row";
-
-        const k = document.createElement("div");
-        k.className = "k";
-        k.textContent = key;
-
-        const val = document.createElement("div");
-        val.className = "v";
+        const row = document.createElement("div"); row.className = "row";
+        const k = document.createElement("div"); k.className = "k"; k.textContent = key;
+        const val = document.createElement("div"); val.className = "v";
         if (hl[key] && hl[key].length) {
-          // Solr returns an array of snippets for the field.
           val.innerHTML = hl[key].map(highlightHtml).join(" … ");
         } else {
-          val.textContent = valueToText(doc[key]); // textContent = no injection
+          val.textContent = valueToText(doc[key]);
         }
-
-        row.appendChild(k);
-        row.appendChild(val);
-        card.appendChild(row);
+        row.appendChild(k); row.appendChild(val); card.appendChild(row);
       }
       frag.appendChild(card);
     }
@@ -381,11 +211,9 @@
   function updatePager(total) {
     if (total === 0) { els.pager.classList.add("hidden"); return; }
     els.pager.classList.remove("hidden");
-    const from = total === 0 ? 0 : start + 1;
-    const to = Math.min(start + ROWS, total);
-    els.range.innerHTML = `<b>${from}</b>–<b>${to}</b> of <b>${total.toLocaleString()}</b>`;
-    els.prev.disabled = start <= 0;
-    els.next.disabled = to >= total;
+    const from = start + 1, to = Math.min(start + ROWS, total);
+    els.range.innerHTML = `<b>${from}</b>-<b>${to}</b> of <b>${total.toLocaleString()}</b>`;
+    els.prev.disabled = start <= 0; els.next.disabled = to >= total;
     els.page.textContent = `${Math.floor(start / ROWS) + 1}/${Math.max(1, Math.ceil(total / ROWS))}`;
   }
 
@@ -394,62 +222,39 @@
     const url = `/api/search?q=${encodeURIComponent(q)}&start=${start}&rows=${ROWS}`;
     const t0 = performance.now();
     let resp, data;
-    try {
-      resp = await fetch(url);
-    } catch (e) {
-      showState(`<div class="big">Proxy unreachable</div>Could not reach the search API.`, true);
-      return;
-    }
-    const dt = Math.round(performance.now() - t0);
-    els.latency.textContent = dt + " ms";
-
+    try { resp = await fetch(url); }
+    catch (e) { showState(`<div class="big">Proxy unreachable</div>Could not reach the search API.`, true); return; }
+    els.latency.textContent = Math.round(performance.now() - t0) + " ms";
     try { data = await resp.json(); } catch (e) { data = {}; }
-
     if (!resp.ok) {
       const msg = (data && data.detail) ? data.detail : `Request failed (${resp.status})`;
-      els.total.textContent = "—";
+      els.total.textContent = "-";
       showState(`<div class="big">${escapeHtml(resp.status === 503 ? "Solr unavailable" : "Query error")}</div>${escapeHtml(msg)}`, true);
       return;
     }
-
     lastTotal = data.total || 0;
     els.total.textContent = lastTotal.toLocaleString();
-
     if (!data.docs || data.docs.length === 0) {
       els.page.textContent = "0/0";
       showState(`<div class="big">No records match</div>Try a broader term, or leave the box blank to list everything.`, false);
       return;
     }
-
-    renderDocs(data.docs, data.highlighting);
-    updatePager(lastTotal);
+    renderDocs(data.docs, data.highlighting); updatePager(lastTotal);
   }
 
   async function checkHealth() {
     try {
-      const r = await fetch("/api/health");
-      const j = await r.json();
-      if (j.ok) {
-        els.dot.className = "dot ok";
-        els.dot.title = "Solr OK · core " + (j.core || "");
-      } else {
-        els.dot.className = "dot bad";
-        els.dot.title = "Solr not responding";
-      }
-    } catch (e) {
-      els.dot.className = "dot bad";
-      els.dot.title = "Proxy unreachable";
-    }
+      const j = await (await fetch("/api/health")).json();
+      els.dot.className = j.ok ? "dot ok" : "dot bad";
+      els.dot.title = j.ok ? ("Solr OK · core " + (j.core || "")) : "Solr not responding";
+    } catch (e) { els.dot.className = "dot bad"; els.dot.title = "Proxy unreachable"; }
   }
 
   els.form.addEventListener("submit", (e) => { e.preventDefault(); start = 0; runSearch(); });
   els.prev.addEventListener("click", () => { start = Math.max(0, start - ROWS); runSearch(); window.scrollTo(0, 0); });
   els.next.addEventListener("click", () => { start += ROWS; runSearch(); window.scrollTo(0, 0); });
 
-  // initial load: health + list everything
-  checkHealth();
-  setInterval(checkHealth, 15000);
-  runSearch();
+  checkHealth(); setInterval(checkHealth, 15000); runSearch();
 })();
 </script>
 </body>

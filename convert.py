@@ -20,7 +20,7 @@ tel/mobile -> phone, etc.) so the same ingest flags work on every file. Each
 record also gets a `source_file` field for provenance (disable with --no-source-file).
 
 Excel needs openpyxl on the host:  pip install openpyxl
-(everything else is stdlib). .xls (old binary) is not supported — re-save as
+(everything else is stdlib). .xls (old binary) is not supported - re-save as
 .xlsx or CSV.
 """
 
@@ -158,7 +158,7 @@ def rows_from_text(path, delimiter, columns):
             if n == 2:
                 cols = ["email", "password"]
             else:
-                warn(f"{path}: {n} fields per line on '{delim}' — pass --columns "
+                warn(f"{path}: {n} fields per line on '{delim}' - pass --columns "
                      f"to name them (defaulting to col1..col{n})")
                 cols = [f"col{i+1}" for i in range(n)]
         fh.seek(0)

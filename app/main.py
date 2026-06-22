@@ -19,7 +19,7 @@ MAX_ROWS = int(os.environ.get("MAX_ROWS", "100"))
 
 SOLR_BASE = f"{SOLR_URL}/{SOLR_CORE}"
 
-app = FastAPI(title="Ledger Search", docs_url=None, redoc_url=None)
+app = FastAPI(title="HAWK", docs_url=None, redoc_url=None)
 client = httpx.AsyncClient(timeout=15.0)
 
 

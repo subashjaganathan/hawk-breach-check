@@ -1,7 +1,7 @@
 services:
   solr:
     image: solr:9
-    container_name: ledger-solr
+    container_name: hawk-solr
     # _default configset: schemaless field-guessing + a _text_ catch-all
     # copyField, so search works on the first ingest with no schema work.
     command:
@@ -26,7 +26,7 @@ services:
 
   app:
     build: ./app
-    container_name: ledger-app
+    container_name: hawk-app
     environment:
       SOLR_URL: http://solr:8983/solr
       SOLR_CORE: BigData

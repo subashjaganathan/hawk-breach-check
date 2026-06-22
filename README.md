@@ -1,4 +1,4 @@
-# Ledger - Self-Hosted Full-Text Search
+# HAWK - Self-Hosted Search and Breach Check
 
 A small, self-hosted full-text search engine over **your own records** - logs,
 analyst notes, threat-feed documents, synthetic datasets. It is **not** a public
